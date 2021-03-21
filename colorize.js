@@ -7,19 +7,35 @@
  * - Kris Thom White, https://github.com/ktwbc
  */
 
-'use strict'
+"use strict";
 
 /* global AnsiUp, localStorage */
 
-const colors = ["#F9DBBD", "#CDC7E5", "#F6A5A2", "#FFF399", "#C4F4C7", "#E8E1EF", "#D9FFF8", "#ADFFE5", "#E6DBD0", "#C7FFDA", "#FCA17D", "#FCD0A1", "#FAFFD8", "#A3F7B5", "#D8B4E2"]
+const colors = [
+  "#F9DBBD",
+  "#CDC7E5",
+  "#F6A5A2",
+  "#FFF399",
+  "#C4F4C7",
+  "#E8E1EF",
+  "#D9FFF8",
+  "#ADFFE5",
+  "#E6DBD0",
+  "#C7FFDA",
+  "#FCA17D",
+  "#FCD0A1",
+  "#FAFFD8",
+  "#A3F7B5",
+  "#D8B4E2",
+];
 
-const ansiTransform = new AnsiUp()
-delete window.AnsiUp // just delete it so its hidden from global space
+const ansiTransform = new AnsiUp();
+delete window.AnsiUp; // just delete it so its hidden from global space
 
-function insertStylesheet () {
+function insertStylesheet() {
   // dont know why, but all "spans" that are insterted in cwdb-ellipsis are blinking
   // this class prevents that from happening
-  const style = document.createElement('style')
+  const style = document.createElement("style");
   style.textContent = `
   .ansiColorized span {
       -webkit-animation-name: unset !important;
@@ -130,357 +146,405 @@ function insertStylesheet () {
       font-size: 14px;
   }
 
-  `
-  document.head.appendChild(style)
+  `;
+  document.head.appendChild(style);
 }
 
-function insertTools () {
-  const panel = document.createElement('div')
-  let panelHtml = `<div id="logs-tweaker-panel">`
+function insertTools() {
+  const panel = document.createElement("div");
+  let panelHtml = `<div id="logs-tweaker-panel">`;
   if (isNewDesign()) {
-    panelHtml = `${ panelHtml }
+    panelHtml = `${panelHtml}
     <label class="container-checkbox"> Replace Fonts
-      <input type="checkbox" id="logs-tweaker-fonts" ${ fontsOn() ? 'checked="checked"' : '' }>
+      <input type="checkbox" id="logs-tweaker-fonts" ${
+        fontsOn() ? 'checked="checked"' : ""
+      }>
       <span class="checkmark"></span>
     </label>
-  `
+  `;
   } else {
-    panelHtml = `${ panelHtml }
+    panelHtml = `${panelHtml}
     <label class="container-checkbox"> Fullscreen
-      <input type="checkbox" id="logs-tweaker-fullscreen" ${ fullscreenOn() ? 'checked="checked"' : '' }>
+      <input type="checkbox" id="logs-tweaker-fullscreen" ${
+        fullscreenOn() ? 'checked="checked"' : ""
+      }>
       <span class="checkmark"></span>
     </label>
     <label class="container-checkbox"> Follow tail
-      <input type="checkbox" id="logs-tweaker-autorefresh" ${ autorefreshOn() ? 'checked="checked"' : '' }>
+      <input type="checkbox" id="logs-tweaker-autorefresh" ${
+        autorefreshOn() ? 'checked="checked"' : ""
+      }>
         <span class="checkmark"></span>
     </label>
-  `
+  `;
   }
-  
-  panel.innerHTML = panelHtml + '</div>'
-  document.body.append(panel)
+
+  panel.innerHTML = panelHtml + "</div>";
+  document.body.append(panel);
 
   if (isNewDesign()) {
-    setupNewToggles()
+    setupNewToggles();
   } else {
-    setupOldToggles()
+    setupOldToggles();
   }
 }
 
-function setupOldToggles () {
+function setupOldToggles() {
   // toggle fullscreen
-  document.getElementById('logs-tweaker-fullscreen').onchange = t => {
-    const { checked } = t.target
+  document.getElementById("logs-tweaker-fullscreen").onchange = (t) => {
+    const { checked } = t.target;
     if (checked) {
-      localStorage.setItem('logs-tweaker-fullscreen', 'yes')
+      localStorage.setItem("logs-tweaker-fullscreen", "yes");
     } else {
-      localStorage.removeItem('logs-tweaker-fullscreen')
+      localStorage.removeItem("logs-tweaker-fullscreen");
     }
-    refreshFullscreen()
-  }
+    refreshFullscreen();
+  };
 
   // toggle auto refresh
-  document.getElementById('logs-tweaker-autorefresh').onchange = t => {
-    const { checked } = t.target
+  document.getElementById("logs-tweaker-autorefresh").onchange = (t) => {
+    const { checked } = t.target;
     if (checked) {
-      localStorage.setItem('logs-tweaker-autorefresh', 'yes')
+      localStorage.setItem("logs-tweaker-autorefresh", "yes");
     } else {
-      localStorage.removeItem('logs-tweaker-autorefresh')
+      localStorage.removeItem("logs-tweaker-autorefresh");
     }
-    refreshAutoRefresh()
-  }
-
+    refreshAutoRefresh();
+  };
 }
 
-function setupNewToggles () {
+function setupNewToggles() {
   // toggle replace fonts
-  document.getElementById('logs-tweaker-fonts').onchange = t => {
-    const { checked } = t.target
+  document.getElementById("logs-tweaker-fonts").onchange = (t) => {
+    const { checked } = t.target;
     if (checked) {
-      localStorage.setItem('logs-tweaker-fonts', 'yes')
+      localStorage.setItem("logs-tweaker-fonts", "yes");
     } else {
-      localStorage.removeItem('logs-tweaker-fonts')
+      localStorage.removeItem("logs-tweaker-fonts");
     }
-    refreshFonts()
-  }
+    refreshFonts();
+  };
 }
 
-function removeTools () {
-  const element = document.getElementById('logs-tweaker-panel')
+function removeTools() {
+  const element = document.getElementById("logs-tweaker-panel");
   if (element) {
-    element.parentNode.removeChild(element)
+    element.parentNode.removeChild(element);
   }
 }
 
 // add "auto refresh" & "fullscreen"
 setInterval(() => {
-  if (window.location.hash.includes('#logEventViewer') || isNewDesign()) {
+  if (window.location.hash.includes("#logEventViewer") || isNewDesign()) {
     if (!isNewDesign()) {
-      refreshOldDesign()
+      refreshOldDesign();
     } else {
-      refreshNewDesign()
+      refreshNewDesign();
     }
-    if (document.getElementById('logs-tweaker-panel')) {
-      return
+    if (document.getElementById("logs-tweaker-panel")) {
+      return;
     }
-    insertStylesheet()
-    insertTools()
+    insertStylesheet();
+    insertTools();
   } else {
-    removeTools()
+    removeTools();
   }
-}, 1000)
+}, 1000);
 
-function refreshOldDesign () {
-  refreshAutoRefresh()
-  refreshFullscreen()
+function refreshOldDesign() {
+  refreshAutoRefresh();
+  refreshFullscreen();
 }
 
-function refreshNewDesign () {
-  refreshAutoRefresh()
-  refreshFullscreen()
+function refreshNewDesign() {
+  refreshAutoRefresh();
+  refreshFullscreen();
 }
 
-function fullscreenOn () {
-  return !!localStorage.getItem('logs-tweaker-fullscreen')
+function fullscreenOn() {
+  return !!localStorage.getItem("logs-tweaker-fullscreen");
 }
 
-function fontsOn () {
-  return !!localStorage.getItem('logs-tweaker-fonts')
+function fontsOn() {
+  return !!localStorage.getItem("logs-tweaker-fonts");
 }
 
-function refreshFullscreen () {
-  const elt = document.getElementsByClassName('cwdb-log-viewer-table-container')[0]
+function refreshFullscreen() {
+  const elt = document.getElementsByClassName(
+    "cwdb-log-viewer-table-container"
+  )[0];
   if (!elt) {
-    return
+    return;
   }
   if (fullscreenOn()) {
-    if (!elt.classList.contains('fullscreen')) {
-      elt.classList.add('fullscreen')
+    if (!elt.classList.contains("fullscreen")) {
+      elt.classList.add("fullscreen");
     }
   } else {
-    elt.classList.remove('fullscreen')
+    elt.classList.remove("fullscreen");
   }
 }
 
-function autorefreshOn () {
-  return !!localStorage.getItem('logs-tweaker-autorefresh')
+function autorefreshOn() {
+  return !!localStorage.getItem("logs-tweaker-autorefresh");
 }
 
-let autorefreshInterval = null
+let autorefreshInterval = null;
 
-function refreshAutoRefresh () {
+function refreshAutoRefresh() {
   if (autorefreshOn()) {
     if (!autorefreshInterval) {
-      autorefreshInterval = setInterval(refreshTail, 3000)
-      refreshTail()
+      autorefreshInterval = setInterval(refreshTail, 3000);
+      refreshTail();
     }
   } else {
-    clearInterval(autorefreshInterval)
-    autorefreshInterval = null
+    clearInterval(autorefreshInterval);
+    autorefreshInterval = null;
   }
 }
 
-function refreshFonts () {
-  const elements = getElements()
-  elements.forEach(element => changeFontElement(element, fontsOn() ? 'set' : 'clear'))
+function refreshFonts() {
+  const elements = getElements();
+  elements.forEach((element) =>
+    changeFontElement(element, fontsOn() ? "set" : "clear")
+  );
 }
 
-function refreshTail () {
-  const refresh = document.getElementsByClassName('cwdb-log-viewer-table-infinite-loader-bottom')[0]
+function refreshTail() {
+  const refresh = document.getElementsByClassName(
+    "cwdb-log-viewer-table-infinite-loader-bottom"
+  )[0];
   if (!refresh) {
-    return
+    return;
   }
-  let a = refresh.firstElementChild
-  while (a && a.tagName !== 'A') {
-    a = a.nextElementSibling
+  let a = refresh.firstElementChild;
+  while (a && a.tagName !== "A") {
+    a = a.nextElementSibling;
   }
   if (a) {
-    a.click()
+    a.click();
     // scroll to bottom
-    const div = document.getElementsByClassName('cwdb-log-viewer-table-body')[0]
+    const div = document.getElementsByClassName(
+      "cwdb-log-viewer-table-body"
+    )[0];
     if (div) {
-      div.scrollTop = div.scrollHeight
+      div.scrollTop = div.scrollHeight;
     }
   }
 }
 
-function isCheckedForDecorated (element) {
-  return element.dataset.checkedForDecorated !== 'yes'
+function isCheckedForDecorated(element) {
+  return element.dataset.checkedForDecorated !== "yes";
 }
 
-function setCheckedForDecorated (element) {
-  element.dataset.checkedForDecorated = 'yes'
-  return element
+function setCheckedForDecorated(element) {
+  element.dataset.checkedForDecorated = "yes";
+  return element;
 }
 
-function isCheckedForBold (element) {
-  return element.dataset.checkedForBold !== 'yes'
+function isCheckedForBold(element) {
+  return element.dataset.checkedForBold !== "yes";
 }
 
-function setCheckedForBold (element) {
-  element.dataset.checkedForBold = 'yes'
-  return element
+function setCheckedForBold(element) {
+  element.dataset.checkedForBold = "yes";
+  return element;
 }
 
-function isStartLine (element) {
-  return element.innerHTML.includes('START RequestId:')
+function isStartLine(element) {
+  return element.innerHTML.includes("START RequestId:");
 }
 
-function isEndLine (element) {
-  return element.innerHTML.includes('REPORT RequestId:')
+function isEndLine(element) {
+  return element.innerHTML.includes("REPORT RequestId:");
 }
 
-function isErrorLine (element) {
-  const text = element.innerHTML.toLowerCase()
-  return text.includes('error')
+function isErrorLine(element) {
+  const text = element.innerHTML.toLowerCase();
+  return text.includes("error");
 }
 
-function isErrorOrEndLine (element) {
-  return isErrorLine(element) || isEndLine(element)
+function isErrorOrEndLine(element) {
+  return isErrorLine(element) || isEndLine(element);
 }
 
-function isStartOrEnd (element) {
-  return isStartLine(element) || isEndLine(element)
+function isStartOrEnd(element) {
+  return isStartLine(element) || isEndLine(element);
 }
 
-function hasId (element, id) {
-  return element.innerHTML.includes(id)
+function hasId(element, id) {
+  return element.innerHTML.includes(id);
 }
 
-function colorizeElement (element, color) {
-  element.style.backgroundColor = color
-  return element
+function colorizeElement(element, color) {
+  element.style.backgroundColor = color;
+  return element;
 }
 
-function changeFontElement (element, action) {
-  if (element.dataset.isFontHandled !== 'yes' || action) {
-    element.dataset.isFontHandled = 'yes'
-    element.height = '20px'
-    element.lineHeight = '20px'
+function changeFontElement(element, action) {
+  if (element.dataset.isFontHandled !== "yes" || action) {
+    element.dataset.isFontHandled = "yes";
+    element.height = "20px";
+    element.lineHeight = "20px";
 
-    let subElements = element.getElementsByClassName('logs__log-events-table__cell')
+    let subElements = element.getElementsByClassName(
+      "logs__log-events-table__cell"
+    );
     for (let e of subElements) {
-      if (action === 'clear') {
+      if (action === "clear") {
         e.style.fontFamily = null;
         e.style.fontSize = null;
         e.style.paddingLeft = null;
       } else {
-        e.style.fontFamily = '"Helvetica Neue", Roboto, Arial, sans-serif'
-        e.style.fontSize = '0.9em'
-        e.style.paddingLeft = '5px'
+        e.style.fontFamily = '"Helvetica Neue", Roboto, Arial, sans-serif';
+        e.style.fontSize = "0.9em";
+        e.style.paddingLeft = "5px";
       }
     }
   }
-  return element
+  return element;
 }
 
-function makeBoldElement (element) {
-  element.style.fontWeight = 600
-  return element
+function makeBoldElement(element) {
+  element.style.fontWeight = 600;
+  return element;
 }
 
-function makeBold (elements) {
+function makeBold(elements) {
   elements
     .filter(isCheckedForBold)
     .map(setCheckedForBold)
     .filter(isErrorOrEndLine)
-    .forEach(makeBoldElement)
+    .forEach(makeBoldElement);
 }
 
-function getEventId (element) {
-  return element
-    .innerHTML
-    .replace(/\n/g, ' ')
-    .match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/g)[0]
+function getEventId(element) {
+  return element.innerHTML
+    .replace(/\n/g, " ")
+    .match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/g)[0];
 }
 
-function getUniqueEventIds (eventIds) {
+function getUniqueEventIds(eventIds) {
   return Array.from(
     new Set(
       eventIds
         .filter(isCheckedForDecorated)
         .map(setCheckedForDecorated)
         .filter(isStartOrEnd)
-        .map(getEventId)))
+        .map(getEventId)
+    )
+  );
 }
 
-function changeFontOnGroup (elements) {
-  elements.forEach(changeFontElement)
+function changeFontOnGroup(elements) {
+  elements.forEach(changeFontElement);
 }
 
-function colorizeGroup (elements) {
-  let color = colors[Math.floor((Math.random() * 10000)) % colors.length]
-  elements.forEach(element => colorizeElement(element, color))
+function colorizeGroup(elements) {
+  let color = colors[Math.floor(Math.random() * 10000) % colors.length];
+  elements.forEach((element) => colorizeElement(element, color));
 }
 
-function decorateGroups (elements) {
-  let eventIds = getUniqueEventIds(elements)
-  let newDesign = isNewDesign()
+function decorateGroups(elements) {
+  let eventIds = getUniqueEventIds(elements);
+  let newDesign = isNewDesign();
   if (eventIds) {
-    eventIds.forEach(
-      id => {
-        colorizeGroup(elements.filter(element => hasId(element, id)))
-        if (newDesign && fontsOn()) changeFontOnGroup(elements)
-      })
+    eventIds.forEach((id) => {
+      colorizeGroup(elements.filter((element) => hasId(element, id)));
+      if (newDesign && fontsOn()) changeFontOnGroup(elements);
+    });
   }
 }
 
-function applyAnsiTransform (e) {
+function applyAnsiTransform(e) {
   if (e) {
-    const txt = e.childNodes[0]
-    const textValue = txt.textContent || ''
-    if (/(^|\x1b)\[(\d+)m/.test(textValue)) {
-      e.classList.add('ansiColorized')
-      e.innerHTML = ansiTransform.ansi_to_html(textValue)
+    var innerHTML = "";
+    var x;
+    e.childNodes.forEach((txt) => {
+      const textValue = txt.textContent || "";
+      if (/(^|\x1b)\[(\d+)m/.test(textValue)) {
+        let _innerHTML = ansiTransform.ansi_to_html(textValue);
+        if (!x) x = _innerHTML;
+        innerHTML += _innerHTML;
+      } else {
+        innerHTML += textValue;
+      }
+    });
+    e.classList.add("ansiColorized");
+    e.innerHTML = innerHTML;
+
+    let color = x.match(/rgb\(\d*,\d*,\d*\)/g)[0];
+    let row;
+    let _ = e;
+    do {
+      if (_ && _.tagName.toLowerCase() === "tr") row = _;
+      else if (!_) break;
+      else _ = _.parentElement;
+    } while (!row && _.parentElement);
+    if (row) {
+      row.style.backgroundColor =
+        color.substring(0, color.length - 1) + ",0.1)";
     }
   }
 }
 
-function colorizeAnsi (elements) {
+function colorizeAnsi(elements) {
   for (let e of elements) {
-    if (e.dataset.isAnsiColorizedHandled !== 'yes') {
-      e.dataset.isAnsiColorizedHandled = 'yes'
-      applyAnsiTransform(e.getElementsByClassName("logs__log-events-table__cell")[1])
+    if (e.dataset.isAnsiColorizedHandled !== "yes") {
+      e.dataset.isAnsiColorizedHandled = "yes";
+      applyAnsiTransform(
+        e.getElementsByClassName("logs__log-events-table__cell")[1]
+      );
     }
+    applyAnsiTransform(
+      e.getElementsByClassName("logs__log-events-table__content")[0]
+    );
   }
 }
 
-function getElements () {
-  let elements
+function getElements() {
+  let elements;
 
-  const newDesignElements = document.querySelectorAll('iframe#microConsole-Logs')[0]
+  const newDesignElements = document.querySelectorAll(
+    "iframe#microConsole-Logs"
+  )[0];
 
   if (newDesignElements) {
-    elements = newDesignElements.contentDocument.getElementsByClassName('awsui-table-row')
+    elements = newDesignElements.contentDocument.getElementsByClassName(
+      "awsui-table-row"
+    );
   } else {
-    elements = document.getElementsByClassName('cwdb-ellipsis')
+    elements = document.getElementsByClassName("cwdb-ellipsis");
   }
 
-  return [].slice.call(elements)
+  return [].slice.call(elements);
 }
 
-function isNewDesign () {
-  return window.location.hash.includes('#logsV2:log-groups/log-group') && window.location.hash.includes('/log-events')
+function isNewDesign() {
+  return (
+    window.location.hash.includes("#logsV2:log-groups/log-group") &&
+    window.location.hash.includes("/log-events")
+  );
 }
 
-function colorizeAll () {
+function colorizeAll() {
   // console.time('cost-of-colorize')
   // console.time('cost-of-getting-elements')
-  const elements = getElements()
+  const elements = getElements();
   // console.timeEnd('cost-of-getting-elements')
 
   // console.time('cost-of-colorize-groups')
-  decorateGroups(elements)
+  decorateGroups(elements);
   // console.timeEnd('cost-of-colorize-groups')
 
   // console.time('cost-of-colorize-ansi')
-  colorizeAnsi(elements)
+  colorizeAnsi(elements);
   // console.timeEnd('cost-of-colorize-ansi')
 
   // console.time('cost-of-bold')
-  makeBold(elements)
+  makeBold(elements);
   // console.timeEnd('cost-of-bold')
   // console.timeEnd('cost-of-colorize')
 }
 
-setInterval(colorizeAll, 1000)
+setInterval(colorizeAll, 1000);
