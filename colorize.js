@@ -495,10 +495,10 @@ function colorizeAnsi(elements) {
       applyAnsiTransform(
         e.getElementsByClassName("logs__log-events-table__cell")[1]
       );
+      applyAnsiTransform(
+        e.getElementsByClassName("logs__log-events-table__content")[0]
+      );
     }
-    applyAnsiTransform(
-      e.getElementsByClassName("logs__log-events-table__content")[0]
-    );
   }
 }
 
@@ -516,7 +516,6 @@ function getElements() {
   } else {
     elements = document.getElementsByClassName("cwdb-ellipsis");
   }
-
   return [].slice.call(elements);
 }
 
